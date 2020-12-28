@@ -6,6 +6,10 @@ import android.net.Uri;
 import android.widget.Toast;
 import android.os.Build;
 import androidx.annotation.NonNull;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
+
+import java.util.List;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -20,6 +24,9 @@ public class OpenAppstorePlugin implements FlutterPlugin {
   /** Plugin registration. */
 
   private MethodChannel channel;
+  
+  private static final String GooglePlayStorePackageNameOld = "com.google.market";
+  private static final String GooglePlayStorePackageNameNew = "com.android.vending";
 
   public static void registerWith(Registrar registrar) {
     OpenAppstorePlugin plugin = new OpenAppstorePlugin();
@@ -40,6 +47,15 @@ public class OpenAppstorePlugin implements FlutterPlugin {
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     context.startActivity(intent);
   }
+  
+  public static boolean googlePlayStoreInstalled(Context context) {
+    PackageManager packageManager = context.getPackageManager();
+    List<PackageInfo> packages = packageManager.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+    for (PackageInfo packageInfo : packages)
+      if (packageInfo.packageName.equals(GooglePlayStorePackageNameOld) || packageInfo.packageName.equals(GooglePlayStorePackageNameNew))
+        return true;
+    return false;
+  }
 
   private void setMethodChannel(final Context context, BinaryMessenger messenger) {
     channel = new MethodChannel(messenger, "flutter.moum.open_appstore");
@@ -53,10 +69,10 @@ public class OpenAppstorePlugin implements FlutterPlugin {
           String android_id = call.argument("android_id");
           String huawei_id = call.argument("huawei_id");
           String manufacturer = android.os.Build.MANUFACTURER;
-          Toast.makeText(context, getDeviceName(), Toast.LENGTH_SHORT).show();
+          //Toast.makeText(context, getDeviceName(), Toast.LENGTH_SHORT).show();
           if (manufacturer.equals("Amazon")) {
             launchActivity(context, "amzn://apps/android?p=" + android_id);
-          } else if (manufacturer.equalsIgnoreCase("Huawei")) {
+          } else if (manufacturer.equalsIgnoreCase("Huawei") && !googlePlayStoreInstalled(context)) {
             launchActivity(context, "appmarket://details?id=" + huawei_id);
           } else {
             try {
