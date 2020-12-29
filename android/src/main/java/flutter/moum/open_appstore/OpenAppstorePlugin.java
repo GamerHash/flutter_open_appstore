@@ -6,10 +6,8 @@ import android.net.Uri;
 import android.widget.Toast;
 import android.os.Build;
 import androidx.annotation.NonNull;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageInfo;
 
-import java.util.List;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -24,9 +22,6 @@ public class OpenAppstorePlugin implements FlutterPlugin {
   /** Plugin registration. */
 
   private MethodChannel channel;
-  
-  private static final String GooglePlayStorePackageNameOld = "com.google.market";
-  private static final String GooglePlayStorePackageNameNew = "com.android.vending";
 
   public static void registerWith(Registrar registrar) {
     OpenAppstorePlugin plugin = new OpenAppstorePlugin();
@@ -49,12 +44,7 @@ public class OpenAppstorePlugin implements FlutterPlugin {
   }
   
   public static boolean googlePlayStoreInstalled(Context context) {
-    PackageManager packageManager = context.getPackageManager();
-    List<PackageInfo> packages = packageManager.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
-    for (PackageInfo packageInfo : packages)
-      if (packageInfo.packageName.equals(GooglePlayStorePackageNameOld) || packageInfo.packageName.equals(GooglePlayStorePackageNameNew))
-        return true;
-    return false;
+    return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == com.google.android.gms.common.ConnectionResult.SUCCESS;
   }
 
   private void setMethodChannel(final Context context, BinaryMessenger messenger) {
