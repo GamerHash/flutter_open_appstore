@@ -54,7 +54,16 @@ public class OpenAppstorePlugin implements FlutterPlugin {
       public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         if (call.method.equals("getPlatformVersion")) {
           result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else if (call.method.equals("openappstore")) {
+        }
+        else if (call.method.equals("getStoreType")) {
+          String manufacturer = android.os.Build.MANUFACTURER;
+          if (manufacturer.equalsIgnoreCase("Huawei") && !googlePlayStoreInstalled(context)) {
+            result.success("huawei");
+          } else {
+            result.success("google");
+          }
+        }
+        else if (call.method.equals("openappstore")) {
           result.success("Android " + android.os.Build.VERSION.RELEASE);
           String android_id = call.argument("android_id");
           String huawei_id = call.argument("huawei_id");
@@ -62,9 +71,11 @@ public class OpenAppstorePlugin implements FlutterPlugin {
           //Toast.makeText(context, getDeviceName(), Toast.LENGTH_SHORT).show();
           if (manufacturer.equals("Amazon")) {
             launchActivity(context, "amzn://apps/android?p=" + android_id);
-          } else if (manufacturer.equalsIgnoreCase("Huawei") && !googlePlayStoreInstalled(context)) {
+          }
+          else if (manufacturer.equalsIgnoreCase("Huawei") && !googlePlayStoreInstalled(context)) {
             launchActivity(context, "appmarket://details?id=" + huawei_id);
-          } else {
+          }
+          else {
             try {
               launchActivity(context, "market://details?id=" + android_id);
             } catch (android.content.ActivityNotFoundException e) {
@@ -72,7 +83,8 @@ public class OpenAppstorePlugin implements FlutterPlugin {
             }
           }
           result.success(null);
-        } else {
+        }
+        else {
           result.notImplemented();
         }
       }
