@@ -2,10 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+enum StoreType {
+  GooglePlay,
+  AppGallery,
+  AppStore,
+  Nothing
+}
+
 class OpenAppstore {
   static const MethodChannel _channel = const MethodChannel('flutter.moum.open_appstore');
-  
-  enum StoreType { GooglePlay, AppGallery, AppStore, Nothing }
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
